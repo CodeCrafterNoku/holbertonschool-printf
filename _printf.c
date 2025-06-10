@@ -1,7 +1,7 @@
 #include "main.h"
 #include <stdarg.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include <stdlib.h> /* For NULL */
+#include <unistd.h> /* For write (used directly for non-specifier chars) */
 
 /**
  * print_char - Prints a character
@@ -12,7 +12,7 @@ int print_char(va_list args)
 {
 	char c = va_arg(args, int);
 
-	return (write(1, &c, 1));
+	return (_putchar(c));
 }
 
 /**
@@ -31,7 +31,7 @@ int print_string(va_list args)
 	while (str[i])
 		i++;
 
-	return (write(1, str, i));
+	return (write(1, str, i)); /* Using write directly as _putchar is for single char */
 }
 
 /**
@@ -42,7 +42,8 @@ int print_string(va_list args)
 int print_percent(va_list args)
 {
 	(void)args;
-	return (write(1, "%", 1));
+
+	return (_putchar('%'));
 }
 
 /**
@@ -56,6 +57,8 @@ int (*get_print_func(char spec))(va_list)
 		{'c', print_char},
 		{'s', print_string},
 		{'%', print_percent},
+		{'d', print_int},
+		{'i', print_int},
 		{'\0', NULL}
 	};
 	int j = 0;
@@ -86,7 +89,7 @@ int _printf(const char *format, ...)
 		return (-1);
 
 	va_start(args, format);
-	while (format[i])
+	while (format && format[i])
 	{
 		if (format[i] == '%')
 		{
@@ -102,13 +105,13 @@ int _printf(const char *format, ...)
 			else
 			{
 				/* Handle unknown specifier by printing '%' and the character */
-				count += write(1, &format[i - 1], 1);
-				count += write(1, &format[i], 1);
+				count += _putchar(format[i - 1]);
+				count += _putchar(format[i]);
 			}
 		}
 		else
 		{
-			count += write(1, &format[i], 1);
+			count += _putchar(format[i]);
 		}
 		i++;
 	}
